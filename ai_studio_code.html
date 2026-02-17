@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Sis! 🎂</title>
+    <!-- Importing a fun font -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #ff7eb9;
+            --secondary: #ff65a3;
+            --accent: #7afcff;
+            --bg: #fff0f6;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+            background: var(--bg);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- UI Elements --- */
+        .section {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .active { display: flex; }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            color: var(--secondary);
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0px white;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 126, 185, 0.4);
+            transition: transform 0.2s, background 0.2s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
+        }
+
+        /* --- Level 1: The Gift Box --- */
+        #gift-container {
+            font-size: 100px;
+            cursor: pointer;
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* --- Level 2: Balloon Pop --- */
+        #game-area {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: white;
+            border-radius: 20px;
+            border: 4px dashed var(--primary);
+            overflow: hidden;
+        }
+
+        .balloon {
+            position: absolute;
+            width: 50px;
+            height: 70px;
+            border-radius: 50%;
+            cursor: pointer;
+            animation: float 4s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(450px); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
+
+        /* --- Level 3: The Cake --- */
+        .cake {
+            position: relative;
+            width: 200px;
+            height: 150px;
+            background: #f4e1d2;
+            border-radius: 10px 10px 0 0;
+            margin-top: 50px;
+            box-shadow: inset 0 -10px 0 #e3c4ab, 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .icing {
+            width: 210px;
+            height: 40px;
+            background: var(--primary);
+            position: absolute;
+            top: -10px;
+            left: -5px;
+            border-radius: 20px;
+        }
+
+        .candle {
+            width: 10px;
+            height: 40px;
+            background: #7afcff;
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .flame {
+            width: 15px;
+            height: 20px;
+            background: orange;
+            border-radius: 50% 50% 20% 20%;
+            position: absolute;
+            top: -20px;
+            left: -2.5px;
+            animation: flicker 0.1s infinite alternate;
+        }
+
+        @keyframes flicker {
+            from { transform: scale(1); opacity: 0.8; }
+            to { transform: scale(1.2); opacity: 1; }
+        }
+
+        .hidden { display: none; }
+
+        .message-box {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 500px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SECTION 1: THE REVEAL -->
+    <div id="step1" class="section active">
+        <h1>Hey Sister! 💖</h1>
+        <p>Something special is waiting for you...</p>
+        <div id="gift-container" onclick="openGift()">🎁</div>
+        <p style="margin-top: 20px;">(Click the box!)</p>
+    </div>
+
+    <!-- SECTION 2: BALLOON GAME -->
+    <div id="step2" class="section">
+        <h1>Pop 10 Balloons! 🎈</h1>
+        <p>Score: <span id="score">0</span>/10</p>
+        <div id="game-area"></div>
+    </div>
+
+    <!-- SECTION 3: THE CAKE -->
+    <div id="step3" class="section">
+        <h1>Make a Wish! ✨</h1>
+        <div class="cake">
+            <div class="icing"></div>
+            <div class="candle" id="candle" onclick="blowCandle()">
+                <div class="flame" id="flame"></div>
+            </div>
+        </div>
+        <p id="cake-instruction" style="margin-top: 60px;">Click the flame to blow it out!</p>
+        
+        <div id="final-message" class="hidden">
+            <div class="message-box">
+                <h2>Happy Birthday to the best sister! 🎂</h2>
+                <p>You’re not just my sister, you’re my best friend. May your year be filled with as much joy, laughter, and snacks as we've shared together! Love you tons! ❤️</p>
+                <button onclick="location.reload()">Replay the Magic</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Navigation Logic ---
+        function nextStep(current, next) {
+            document.getElementById('step' + current).classList.remove('active');
+            document.getElementById('step' + next).classList.add('active');
+        }
+
+        // --- Level 1: Gift Box ---
+        function openGift() {
+            // Confetti explosion!
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff7eb9', '#ff65a3', '#7afcff', '#ffffff']
+            });
+            
+            setTimeout(() => {
+                nextStep(1, 2);
+                startGame();
+            }, 1000);
+        }
+
+        // --- Level 2: Balloon Game ---
+        let score = 0;
+        function startGame() {
+            const area = document.getElementById('game-area');
+            const colors = ['#ff7eb9', '#7afcff', '#ffcc33', '#99ff99', '#ff6666'];
+            
+            const interval = setInterval(() => {
+                if (score >= 10) {
+                    clearInterval(interval);
+                    setTimeout(() => nextStep(2, 3), 1000);
+                    return;
+                }
+
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                balloon.style.left = Math.random() * (area.clientWidth - 50) + 'px';
+                balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                balloon.onclick = function() {
+                    score++;
+                    document.getElementById('score').innerText = score;
+                    this.remove();
+                    confetti({
+                        particleCount: 40,
+                        origin: { x: event.clientX / window.innerWidth, y: event.clientY / window.innerHeight }
+                    });
+                };
+
+                area.appendChild(balloon);
+                setTimeout(() => balloon.remove(), 4000);
+            }, 800);
+        }
+
+        // --- Level 3: Cake ---
+        function blowCandle() {
+            document.getElementById('flame').classList.add('hidden');
+            document.getElementById('cake-instruction').innerText = "WISH GRANTED! 🪄";
+            
+            // Grand finale confetti
+            var duration = 5 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+              return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+              var timeLeft = animationEnd - Date.now();
+              if (timeLeft <= 0) return clearInterval(interval);
+              var particleCount = 50 * (timeLeft / duration);
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+
+            setTimeout(() => {
+                document.getElementById('final-message').classList.remove('hidden');
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
